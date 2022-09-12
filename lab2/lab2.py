@@ -1,6 +1,6 @@
 import math
 
-def check_pnr(checkPnr):
+def check_pnr(checkPnr): #Checks pnr genom att ta in pnr och sedan beräkna produktsumman av varenda siffra genom att omvandla den till en string och indexa den. 
     viktPrn = checkPnr.copy()
     vProdukter(viktPrn)
     sum = vSumma(viktPrn)
@@ -19,7 +19,7 @@ def vProdukter(viktPrn):
 
 def vSumma(viktPro):
     sOfPrnmr = '' .join(map(str, viktPro)) # make list into string
-    sum = 0
+    sum = 0 
     for siffror in str(sOfPrnmr): 
         sum += int(siffror)
     

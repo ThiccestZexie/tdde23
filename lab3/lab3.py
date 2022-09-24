@@ -1,64 +1,67 @@
-from math import fabs
-from operator import truediv
+import math
+
 
 def new_board():
-    gameBoard = {}
-    for i in range(1000):
-        gameBoard[(i,0)] = ({"is_free": True, "piece_name":'', "valid_place": True, "removable piece": True })
-        for x in range(1000):
-            gameBoard[(i,x)] = ({"is_free": True, "piece_name":'', "valid_place": True, "removable piece": True }) 
-    return gameBoard
-
-def is_free(gameBoard, xCor, yCor):
-    return gameBoard[xCor,yCor].get("is_free")
-
-def place_piece(gameBoard, xCor, yCor, name):
-    if is_free(gameBoard, xCor, yCor) == True:
-        gameBoard[xCor,yCor].update({"piece_name": name })
-        gameBoard[xCor,yCor].update({"is_free": False })
-        return True
-    elif gameBoard[xCor,yCor].get("is_free") == False: # maybe just else statement
+    return {}
+def is_free(gameBoard, y, x):
+    if(y,x) in gameBoard:
         return False
-
-def remove_piece(gameBoard, xCor, yCor):
-    if is_free(gameBoard, xCor, yCor) == False:
-        gameBoard[xCor,yCor].update({"piece_name": '' })
-        gameBoard[xCor,yCor].update({"is_free": True })
+    else:
         return True
-    elif is_free(gameBoard, xCor, yCor) == True: # maybe just else statement
-        return False
-
-def get_piece(gameBoard,xCor, yCor):
-    if is_free(gameBoard, xCor, yCor) == False:
-        return gameBoard[xCor,yCor].get("piece_name")
+def place_piece(gameBoard, y, x, piece):
+    if is_free(gameBoard, y, x):
+        gameBoard[(y,x)] = piece
+        return True
     else:
         return False
-
-def move_piece(gameBoard, xCor, yCor, xCorMove, yCorMove):
-    if is_free(gameBoard, xCor, yCor) == False:
-        name = get_piece(gameBoard, xCor,yCor)
-        remove_piece(gameBoard, xCor, yCor)
-        place_piece(gameBoard, xCorMove, yCorMove, name)
+def remove_piece(gameBoard, y, x):
+    if not is_free(gameBoard, y, x):
+        del gameBoard[(y,x)]
         return True
-    elif is_free(gameBoard, xCor, yCor) == True: # maybe just else statement
+    else:
         return False
-
-def count(gameBoard, type, yCor, ): # need som eextra work 
-    playerSum = 0
+def move_piece(gameBoard, y, x, newY, newX):
+    if is_free(gameBoard, newY, newX):
+        name = gameBoard[(y,x)]
+        remove_piece(gameBoard, y,x)
+        place_piece(gameBoard, newY, newX, name)
+        return True
+    else:
+        return False
+def get_piece(gameBoard, y, x):
+    if not is_free(gameBoard,y, x):
+        return gameBoard.get((y,x))
+    else:
+        return False
+def nearest_piece(gameBoard, y, x):
+    newDis = 0
+    lowDis = 0
+    lowestCord = ()
+    for key in gameBoard:
+        newDis = math.dist((y,x), key)
+        if lowDis > newDis:
+            lowDis = newDis
+            lowestCord = key
+        else:
+          lowDis = newDis
+    return lowestCord
+def count(gameBoard, type, cord, name):
+    sum = 0
     if type == "row":
-        for i in range(len(gameBoard)):
-            if is_free(gameBoard, i, yCor)== False:
-                if get_piece(gameBoard, i, yCor) == "spelare2": # else its a spelare1
-                    playerSum +=1
-        
-    
- 
-#def nearest_piece(gameBoard, xCor, yCor): # possibly nested loop that checks row +- colum +-row +- colum and so on and compares
-
-
+        for i in range(1000):
+            if get_piece(gameBoard,i ,cord) == name:
+                sum += 1
+    if type == "column":
+        for i in range(1000):
+            if get_piece(gameBoard,cord,i) == name:
+                sum += 1
+    return sum
+            
 
 
 board = new_board()
+print(len(board))
+
 print(is_free(board, 500,100))
 print(place_piece(board, 500, 100, "spelare1"))
 print(place_piece(board, 1, 100, "spelare2"))
@@ -72,8 +75,6 @@ print(remove_piece(board, 1,1))
 print(is_free(board, 500, 100))
 print(move_piece(board, 500,200,500,100)) # need to fix name
 print(get_piece(board,500,100))
-
-
-
-  
-
+print(count(board, "column", 500, "spelare2"))
+print(count(board, "row", 100, "spelare2"))
+print(nearest_piece(board, 500, 105))

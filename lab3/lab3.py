@@ -48,33 +48,11 @@ def nearest_piece(gameBoard, y, x):
 def count(gameBoard, type, cord, name):
     sum = 0
     if type == "row":
-        for i in range(1000):
+        for i in range(1000): # chanage range
             if get_piece(gameBoard,i ,cord) == name:
                 sum += 1
     if type == "column":
         for i in range(1000):
             if get_piece(gameBoard,cord,i) == name:
                 sum += 1
-    return sum
-            
-
-
-board = new_board()
-print(len(board))
-
-print(is_free(board, 500,100))
-print(place_piece(board, 500, 100, "spelare1"))
-print(place_piece(board, 1, 100, "spelare2"))
-print(place_piece(board, 500, 100, "spelare2"))
-print(place_piece(board, 500, 200, "spelare2"))
-print(is_free(board,500,100))
-print(get_piece(board,500,100))
-print(get_piece(board, 666,666))
-print(remove_piece(board, 500, 100))
-print(remove_piece(board, 1,1))
-print(is_free(board, 500, 100))
-print(move_piece(board, 500,200,500,100)) # need to fix name
-print(get_piece(board,500,100))
-print(count(board, "column", 500, "spelare2"))
-print(count(board, "row", 100, "spelare2"))
-print(nearest_piece(board, 500, 105))
+    return sum            

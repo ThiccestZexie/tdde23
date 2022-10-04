@@ -1,6 +1,5 @@
 import math
 
-
 def new_board():
     return {}
 def is_free(gameBoard, y, x):
@@ -48,11 +47,14 @@ def nearest_piece(gameBoard, y, x):
 def count(gameBoard, type, cord, name):
     sum = 0
     if type == "row":
-        for i in range(1000):
-            if get_piece(gameBoard,i ,cord) == name:
-                sum += 1
+        for keys in gameBoard: 
+            if board[keys] == name:
+                if keys[1] == cord:
+                    sum += 1
     if type == "column":
-        for i in range(1000):
-            if get_piece(gameBoard,cord,i) == name:
-                sum += 1
+       for keys in gameBoard: 
+            if board[keys] == name:
+                if keys[0] == cord:
+                    sum += 1
     return sum
+        

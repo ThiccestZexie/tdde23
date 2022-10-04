@@ -48,13 +48,12 @@ def count(gameBoard, type, cord, name):
     sum = 0
     if type == "row":
         for keys in gameBoard: 
-            if board[keys] == name:
+            if gameBoard[keys] == name:
                 if keys[1] == cord:
                     sum += 1
     if type == "column":
        for keys in gameBoard: 
-            if board[keys] == name:
+            if gameBoard[keys] == name:
                 if keys[0] == cord:
                     sum += 1
     return sum
-        

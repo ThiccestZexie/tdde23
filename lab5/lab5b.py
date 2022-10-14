@@ -1,8 +1,21 @@
-from cmath import e, pi
-import math
-from operator import sub
-import numpy
+import glob
+from msilib.schema import Condition
+import random
+from typing import Type
 import cv2
+import math
+from cv2 import imread
+import numpy
+
+
+def pixel_constraint(hlow, hhigh, slow, shigh, vlow, vhigh):
+
+    def is_what(hsv):
+        if vlow <= hsv[2] <= vhigh and hlow <= hsv[0] <= hhigh and slow <= hsv[1] <= shigh:
+            return 1
+        else:
+            return 0
+    return is_what
 
 
 def cvimg_to_list(filename):
@@ -13,6 +26,7 @@ def cvimg_to_list(filename):
             list_of_colors.append(tuple(image[i,q]))
 
     return list_of_colors
+    
 
 def rgblist_to_cvimg(lst, height, width):
     """Return a width x height OpenCV image with specified pixels."""
@@ -29,31 +43,86 @@ def rgblist_to_cvimg(lst, height, width):
     return img
 
 
+def generator_from_image(image_as_list):
 
-def unsharp_mask(N):
-
+    def generator(index):
+        return image_as_list[index]
+    return generator
 
  
-    s = 4.5
+def combine_images(mask,  mask_function, image_generator1, image_generator2):  # just brute force it ig
+    list_colors = []
+    conditon_image = []
+    condition = gradient_condition(mask)
 
-    lista_x_y = [xy for xy in range(math.ceil(-N/2), math. ceil(N/2))]
+    img1 = [image_generator1(i) for i in range(len(mask))]
+    img2 = [image_generator2(i) for i in range(len(mask))]
+    for A in range(273280):
+        condition_img1 = ((img1[A][0] * condition(A), img1[A][1] * condition(A), img1[A][2] * condition(A)))
+        condition_img2 = ((img2[A][0] * (1-condition(A),img2[A][1], img2[A][1] * (1-condition(A)),img2[A][2] * (1-condition(A)))))
+        conditon_image.append((img1[A][0] + img2[A][0],img1[A][1] + img2[A][1],img1[A][2] + img2[A][2]))
+    for A in range(273280):
+        list_colors.append(conditon_image[A])
+    return list_colors
 
-    lista_cord = [-(1/(2*pi*s**2)*e**(-(x**2+(-y)**2)/(2*s**2)))
-        for x in lista_x_y for y in lista_x_y]
-    
-    sublistlength = len(lista_cord) // N
-    lista_blur = [lista_cord[i:i + sublistlength] for i in range(0, len(lista_cord), sublistlength)] 
-
-    lista_blur[math.floor(N/2)][math.floor(N/2)] = 1.5 # mitten blir = 1.5
-
-    return lista_blur
-
-img = cv2.imread('460613.jpg')
-print(cvimg_to_list(img))
-#img = cv2.imread('460613.jpg')      
-#list_img = cvimg_to_list(img)
-#converted_img = rgblist_to_cvimg(list_img, img.shape[0], img.shape[1])    # Bildens dimensioner
-#cv.imshow("converted", converted_img)
-#cv.waitKey(0)
+def combine_images_Original(mask,  mask_function, image_generator1, image_generator2): 
+    list_colors = []
+    img1 = [image_generator1(i) for i in range(len(mask))]
+    img2 = [image_generator2(i) for i in range(len(mask)) ]
+    for A in range(len(mask)):
+        if  mask_function(mask[A]) == 1:
+            list_colors.append(img1[A])            
+        else:
+            list_colors.append(img2[A])
+    return list_colors
 
 
+def greyscale_list_to_cvimg(lst, height, width):
+    """Return a width x height grayscale OpenCV image with specified pixels."""
+    img = numpy.zeros((height, width), numpy.uint8)
+
+    for x in range(0, width):
+        for y in range(0, height):
+            img[y, x] = lst[y * width + x]
+
+    return img
+ 
+def gradient_condition(mask):
+    def condition(index):
+        try: 
+            if isinstance(mask[index], tuple) and len(mask[index]) == 3:
+                return round((sum(mask[index])/765),2)
+            else:
+                raise TypeError
+        except IndexError:
+            return "Index bigger thaan len(mask)"
+        except TypeError:
+            return "Index must be an integer or a slice int"
+    return condition
+   
+
+# Läs in en bild
+plane_img = cv2.imread("plane.jpg")
+flower_image = cv2.imread('flowers.jpg')
+gradient_image = cv2.imread('gradient.jpg')
+# Skapa ett filter som identifierar himlen
+condition = pixel_constraint(100, 150, 50, 200, 100, 255)
+
+# Omvandla originalbilden till en lista med HSV-färger
+gradient_image_list = cvimg_to_list(cv2.cvtColor(gradient_image, cv2.COLOR_BGR2HSV))
+plane_img_list = cvimg_to_list(plane_img)
+flower_img_list = cvimg_to_list(flower_image)
+condition = gradient_condition(gradient_image_list)
+
+# Skapa en generator för den inlästa bilden
+generator1 = generator_from_image(flower_img_list)
+generator2 = generator_from_image(plane_img_list)
+mask = gradient_image_list
+
+# Kombinera de två bilderna till en, alltså använd himmelsfiltret som mask
+result = combine_images(mask, condition, generator1, generator2)
+
+# Omvandla resultatet till en riktig bild och visa upp den
+new_img = rgblist_to_cvimg(result, plane_img.shape[0], plane_img.shape[1])
+cv2.imshow('Final image', new_img)
+cv2.waitKey(0)

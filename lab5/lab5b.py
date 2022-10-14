@@ -10,6 +10,8 @@ import numpy
 
 def pixel_constraint(hlow, hhigh, slow, shigh, vlow, vhigh):
 
+    """checks if a pixels HSV values match with a condition and if it does it returns 1 otherwise 0"""
+
     def is_what(hsv):
         if vlow <= hsv[2] <= vhigh and hlow <= hsv[0] <= hhigh and slow <= hsv[1] <= shigh:
             return 1
@@ -45,12 +47,18 @@ def rgblist_to_cvimg(lst, height, width):
 
 def generator_from_image(image_as_list):
 
+    """Gives the BGR value for a pixel after it reads the list of it"""
     def generator(index):
         return image_as_list[index]
     return generator
 
  
 def combine_images(mask,  mask_function, image_generator1, image_generator2):  # just brute force it ig
+
+
+    """Mask, mask_function is the conditioning to figure out if img1 or img2 is supposed to be used. 
+    Creates a list with new values for each pixel from img1 and img2 based on a mask """
+
     list_colors = []
     conditon_image = []
     condition = gradient_condition(mask)
@@ -90,6 +98,8 @@ def greyscale_list_to_cvimg(lst, height, width):
  
 
 def gradient_condition(mask):
+
+    """Returns what conditon a pixel is on. If its BGR value is 255,255,255 it returns 1 otherwise between 1-0"""
     def condition(index):
         try: 
             if isinstance(mask[index], tuple) and len(mask[index]) == 3:

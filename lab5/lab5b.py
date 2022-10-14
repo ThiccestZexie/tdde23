@@ -54,16 +54,17 @@ def combine_images(mask,  mask_function, image_generator1, image_generator2):  #
     list_colors = []
     conditon_image = []
     condition = gradient_condition(mask)
-
     img1 = [image_generator1(i) for i in range(len(mask))]
     img2 = [image_generator2(i) for i in range(len(mask))]
     for A in range(273280):
-        condition_img1 = ((img1[A][0] * condition(A), img1[A][1] * condition(A), img1[A][2] * condition(A)))
-        condition_img2 = ((img2[A][0] * (1-condition(A),img2[A][1], img2[A][1] * (1-condition(A)),img2[A][2] * (1-condition(A)))))
-        conditon_image.append((img1[A][0] + img2[A][0],img1[A][1] + img2[A][1],img1[A][2] + img2[A][2]))
-    for A in range(273280):
-        list_colors.append(conditon_image[A])
+        if condition(A) == 1:
+            list_colors.append(img1[A])
+        elif condition(A) == 0:
+            list_colors.append(img2[A])
+        else:
+            list_of_colors.append(img1[A] * condition(A) + img2 *condition[A])
     return list_colors
+
 
 def combine_images_Original(mask,  mask_function, image_generator1, image_generator2): 
     list_colors = []
@@ -87,6 +88,7 @@ def greyscale_list_to_cvimg(lst, height, width):
 
     return img
  
+
 def gradient_condition(mask):
     def condition(index):
         try: 

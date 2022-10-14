@@ -6,6 +6,9 @@ import cv2
 
 
 def cvimg_to_list(filename):
+
+    """Takes in a cv2 img that has been read and loops through every coordinate on it and takes out the BGR value of each pixel and appends it to a list and returns that list"""
+
     list_of_colors = []
     image =  filename
     for i in range(image.shape[0]):
@@ -32,7 +35,7 @@ def rgblist_to_cvimg(lst, height, width):
 
 def unsharp_mask(N):
 
-
+    """returns a negativ gauss blur filter based from a argument N. The lists length equals to N and expands from 0 to both positive and negative integers."""
  
     s = 4.5
 

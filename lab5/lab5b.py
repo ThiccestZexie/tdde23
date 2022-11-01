@@ -92,13 +92,9 @@ def greyscale_list_to_cvimg(lst, height, width):
  
 
 def gradient_condition(mask):
-
+    
     def condition(index):
-        (r,g,b) = index
-        if r == g == b:
-            return r/255
-        else:
-            return None
+        return round((sum(mask[index])/765), 2) 
     return condition
 
 

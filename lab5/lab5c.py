@@ -1,5 +1,6 @@
 import glob
 import random
+import re
 from typing import Type
 import cv2
 import math
@@ -20,9 +21,8 @@ def pixel_constraint(hlow, hhigh, slow, shigh, vlow, vhigh):
             return "Given datatype is not a tuple"
     return is_what
 
-def pixel_constrait_test(): # what should i do with negatives 
-    # eftersom HSV kan endast vara mellan 0-255 blir det inte speciellt många extremfall förutom om typ high 
-
+def pixel_constrait_test(): 
+    #Testing mainly base cases 
     # tests
     condition1 = pixel_constraint(0, 1,0,1,0,1)
     assert condition1((5,5,5)) == 0
@@ -54,6 +54,7 @@ def add_tuples(tpl1, tpl2):
 
 
 def cvimg_to_list(filename):
+    """"Input: CV img and converts it into a list of tuples with BGR values of each pixel. Output: List of tuples. """
     list_of_colors = []
     image = filename
     for i in range(image.shape[0]):
@@ -97,6 +98,7 @@ def generator_from_image(image_as_list):
 
 
 def generator_from_image_test():
+    # Tests a list and sees if the values or the same. 
     tuple_list = [(255,0,255),(0,35,1),(0,0,0)]
 
     generator = generator_from_image(tuple_list)
@@ -105,8 +107,10 @@ def generator_from_image_test():
 
 def combine_images(mask,  mask_function, image_generator1, image_generator2):  
 
-    """Mask, mask_function is the conditioning to figure out if img1 or img2 is supposed to be used. 
-    Creates a list with new values for each pixel from img1 and img2 based on a mask """
+    """ Combines 2 images based on a greyscale(mask). With input img 1 as gen and img 2 as gen. And then a mask and a mask fucntion with a condition to 
+    use img 1 or img 2.
+    
+    Output should be a list of final image"""
 
     list_colors = []
     try:
@@ -132,19 +136,14 @@ def combine_images(mask,  mask_function, image_generator1, image_generator2):
     
        
 
-def combine_images_test(): # test base case, and then extreme 
+def combine_images_test(): 
     
+    # Testing normal caes
     condition = gradient_condition([(1,3,2)])
     gen1 = generator_from_image([(23,21,52)])
     gen2 = generator_from_image([(42,32,64)])
     mask = [(1,3,2)]
     assert combine_images(mask, condition, gen1, gen2) == [(41.809999999999995, 31.89,63.88)]
-
-    try:
-        input_list = 'random string'
-        combine_images(input_list, condition, gen1, gen2)
-    except TypeError:
-        return "TypeError"
 
     mask = [(255,255,255), (0,0,0)]
     conditiona = gradient_condition([(128,128,128), (0,0,0)])
@@ -152,6 +151,24 @@ def combine_images_test(): # test base case, and then extreme
     gen2 = generator_from_image([(0,80, 53), (0,0,0)])
     assert combine_images(mask, conditiona, gen1, gen2) == [(255,172,255), (0,0,0)]
 
+    #Testing caes where input list or generators arent correct.
+    try:
+        input_list = 'random string'
+        combine_images(input_list, condition, gen1, gen2)
+    except TypeError:
+        return "TypeError, input list isnt a "
+    try:
+        gen1 = lambda x: x
+        combine_images(input_list, condition, gen1, gen2)
+    except TypeError:
+        return "TypeError as gen"
+    try:
+        gen2 = lambda x: x
+        combine_images(input_list, condition, gen1, gen2)
+    except TypeError:
+        return  "should raise TypeError when generator2 doesn't return tuples"
+
+   
    
 
 
@@ -182,6 +199,7 @@ def gradient_condition(mask):
         except TypeError:
             return "Given index must be an integer"
     return condition
+    
 if __name__ == "__main__":
     generator_from_image_test()
     combine_images_test()

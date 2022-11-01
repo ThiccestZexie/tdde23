@@ -1,8 +1,8 @@
 def choose(n, k): 
-    if k == 0:
-        return 1
-    if n == k:
+    if k > (n/2):
+        k = n - k
+    if k == 0 or n == 0:
         return 1
     else:
-        return choose(n-1, k-1) + choose(n-1, k)
-        
+        return n * choose(n-1, k-1)//k
+

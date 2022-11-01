@@ -1,0 +1,5 @@
+Pixel_Constraint - The input has to be a tuple of preferably only 3 values for the function to be usable otherwise we raise a TypeError
+
+Generator_From_image -  Index cannot be bigger than the amount of elements in the list otherwise its an IndexError  and has to be an integer otherwise we raise a TypeError 
+
+Combine_Images - Mask has to be a list of tuples if not its a TypeError as we can not use that datatype. And if we exceed the index we get an IndexError. 

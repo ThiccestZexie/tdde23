@@ -2,27 +2,27 @@ import glob
 import random
 import re
 from typing import Type
-import cv2
 import math
-import numpy
 
 
 def pixel_constraint(hlow, hhigh, slow, shigh, vlow, vhigh):
 
-    """checks if a pixels HSV values match with a condition and if it does it returns 1 otherwise 0"""
+    """Checks if a pixels HSV values matches with a set conditions and returns 1 or 0 depending if it does or not"""
 
-    def is_what(hsv):
-        try:
-            if vlow <= hsv[2] <= vhigh and hlow <= hsv[0] <= hhigh and slow <= hsv[1] <= shigh:
-                return 1
+    def pixel_condition(hsv):
+        
+            if isinstance(hsv, tuple) and len(hsv) == 3:
+                if vlow <= hsv[2] <= vhigh and hlow <= hsv[0] <= hhigh and slow <= hsv[1] <= shigh:
+                    return 1
+                else:
+                    return 0
             else:
-                return 0
-        except TypeError:
-            return "Given datatype is not a tuple"
-    return is_what
+                raise TypeError
+    return pixel_condition
+
 
 def pixel_constrait_test(): 
-    #Testing mainly base cases 
+    # Testing mainly base cases 
     # tests
     condition1 = pixel_constraint(0, 1,0,1,0,1)
     assert condition1((5,5,5)) == 0
@@ -32,7 +32,21 @@ def pixel_constrait_test():
     assert condition1((63,23,75)) == 0
     assert condition1((70,85,124)) == 1
     assert condition1((123,50, 10)) == 0 
+    assert condition1((11,72,64)) == 0
+    
+    try:
+        condition1 = pixel_constraint(50, 150,50,150,50,150)
+        assert condition1(520) == TypeError
+        raise TypeError
+    except TypeError:
+        print("Given input is not a tuple")
 
+    try: 
+        condition1 = pixel_constraint(50, 150,50,150,50,150)
+        assert condition1(520) == TypeError
+        raise TypeError
+    except TypeError:
+        print("Given input is not a string")
 
 
 def multiply_tuple(tpl, mult):
@@ -54,7 +68,7 @@ def add_tuples(tpl1, tpl2):
 
 
 def cvimg_to_list(filename):
-    """"Input: CV img and converts it into a list of tuples with BGR values of each pixel. Output: List of tuples. """
+    """Returns a list of tuples of a images RGB values"""
     list_of_colors = []
     image = filename
     for i in range(image.shape[0]):
@@ -81,19 +95,19 @@ def rgblist_to_cvimg(lst, height, width):
 
 def generator_from_image(image_as_list):
 
-    """Gives the BGR value for a pixel after it reads the list of it"""
-
+    """Gives BGR value for a pixel after it reads the list of it given a index"""
 
     def generator(index):
         try:
-            if isinstance(index, int):
-                return image_as_list[index]
-            elif index > len(image_as_list): 
+            if index > len(image_as_list): 
                 raise IndexError
+            elif isinstance(index, int):
+                return image_as_list[index]
+            else:
+                raise TypeError
         except IndexError:
-            return "Given index is out of bounds"
-        except TypeError:
-            return "Given value is of the wrong type"
+            return IndexError
+        
     return generator
 
 
@@ -102,31 +116,31 @@ def generator_from_image_test():
     tuple_list = [(255,0,255),(0,35,1),(0,0,0)]
 
     generator = generator_from_image(tuple_list)
+    
     for i in range(len(tuple_list)):
         assert generator(i) == tuple_list[i]
+    
+    assert generator(231) == IndexError
+
 
 def combine_images(mask,  mask_function, image_generator1, image_generator2):  
 
-    """ Combines 2 images based on a greyscale(mask). With input img 1 as gen and img 2 as gen. And then a mask and a mask fucntion with a condition to 
-    use img 1 or img 2.
-    
-    Output should be a list of final image"""
+    """Combine 2 based on a mask with the help of a mask function that decides if img 1 or img 2 should be used or a blend Returns a list of the BGR values for each pixel for the new image
+    """
 
     list_colors = []
     try:
         if isinstance(mask, list):
             img1 = [image_generator1(i) for i in range(len(mask))]
             img2 = [image_generator2(i) for i in range(len(mask))]
-            condition = pixel_constraint(100, 150, 50, 200, 100, 255) # Should give their own errors has they have their own exceptions
-            condition = gradient_condition(mask) # Same
             for A in range(len(mask)):
-                if mask_function(A) == 1:
+                if mask_function(mask[A]) == 1: # sends a tuple
                     list_colors.append(img1[A])
-                elif mask_function(A) == 0:
+                elif mask_function(mask[A]) == 0:
                     list_colors.append(img2[A])
                 else:
-                    list_colors.append(add_tuples(multiply_tuple(img1[A], condition(A)), multiply_tuple(img2[A], (1-condition(A)))))
-            return list_colors
+                    list_colors.append(add_tuples(multiply_tuple(img1[A], mask_function(mask[A])), multiply_tuple(img2[A], (1-mask_function(mask[A])))))
+                return list_colors
         else:
             raise TypeError
     except IndexError:
@@ -134,7 +148,6 @@ def combine_images(mask,  mask_function, image_generator1, image_generator2):
     except TypeError:
         return "Image_generator is a function and not tuples."
     
-       
 
 def combine_images_test(): 
     
@@ -142,31 +155,34 @@ def combine_images_test():
     condition = gradient_condition([(1,3,2)])
     gen1 = generator_from_image([(23,21,52)])
     gen2 = generator_from_image([(42,32,64)])
-    mask = [(1,3,2)]
-    assert combine_images(mask, condition, gen1, gen2) == [(41.809999999999995, 31.89,63.88)]
-
+    mask = [(5,5,5)]
+    assert combine_images(mask,condition,gen1,gen2) == [(41.627450980392155, 31.784313725490193, 63.76470588235294)]
+    
     mask = [(255,255,255), (0,0,0)]
     conditiona = gradient_condition([(128,128,128), (0,0,0)])
     gen1 = generator_from_image([(255,172,255), (0,0,0)])
     gen2 = generator_from_image([(0,80, 53), (0,0,0)])
-    assert combine_images(mask, conditiona, gen1, gen2) == [(255,172,255), (0,0,0)]
+    print(combine_images(mask, conditiona, gen1, gen2)) == [(255,172,255), (0,0,0)]
 
     #Testing caes where input list or generators arent correct.
     try:
         input_list = 'random string'
         combine_images(input_list, condition, gen1, gen2)
+        raise TypeError
     except TypeError:
-        return "TypeError, input list isnt a "
+        print("TypeError, input list isnt a list")
     try:
         gen1 = lambda x: x
         combine_images(input_list, condition, gen1, gen2)
+        raise TypeError        
     except TypeError:
-        return "TypeError as gen"
+        print("TypeError as gen")
     try:
         gen2 = lambda x: x
         combine_images(input_list, condition, gen1, gen2)
+        raise TypeError 
     except TypeError:
-        return  "should raise TypeError when generator2 doesn't return tuples"
+        print("should raise TypeError when generator2 doesn't return tuples")
 
    
    
@@ -186,14 +202,16 @@ def greyscale_list_to_cvimg(lst, height, width):
 
 def gradient_condition(mask):
 
-    """Returns what conditon a pixel is on. If its BGR value is 255,255,255 it returns 1 otherwise between 1-0"""
+    """Retuns a value for a pixel dependent on RGB value when they all are the same."""
 
     def condition(index):
         try:
-            if isinstance(mask[index], tuple) and len(mask[index]) == 3:
-                return round((sum(mask[index])/765),2) 
+            if isinstance(index, tuple):
+                (r,g,b) = index
+                if r == g == b:
+                    return r/255
             else:
-                raise TypeError
+                return r/255
         except IndexError:
             return "Given index is begger than len(mask)"
         except TypeError:

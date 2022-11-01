@@ -1,35 +1,36 @@
 
-def split_it(encodedmessage):
-    understring = ''
-    upperstring = ''
-    for char in encodedmessage:
+def split_it(encoded_message):
+    low = ''
+    up = ''
+    for char in encoded_message:
         if char.isupper():
-            upperstring += char
+            up += char
         if char in [' ', '|']:
-            upperstring += char
+            up += char
 
-    for char in encodedmessage:
+    for char in encoded_message:
         if char.islower():
-            understring += char
+            low += char
         if char in ['_', '.']:
-            understring += char
-    print(understring + ", " + upperstring)
-    return understring, upperstring 
+            low += char
+    return low, up 
 
-def split_rec(encodedmessage):
 
-    if encodedmessage == "":
+def split_rec(encoded_message):
+
+    if encoded_message == "":
          return "", ""
 
-    low, up = split_rec(encodedmessage[1:])
-    if encodedmessage[0].islower():
-        low = encodedmessage[0] + low
-    elif encodedmessage[0].isupper():
-        up = encodedmessage[0] + up
-    if encodedmessage[0] in ['_', '_']:
-        low = encodedmessage[0] + low
-    elif encodedmessage[0] in [' ', '|']:
-        up = encodedmessage[0] + up
+    low, up = split_rec(encoded_message[1:])
+
+    if encoded_message[0].islower():
+        low = encoded_message[0] + low
+    elif encoded_message[0].isupper():
+        up = encoded_message[0] + up
+    if encoded_message[0] in ['.', '_']:
+        low = encoded_message[0] + low
+    elif encoded_message[0] in [' ', '|']:
+        up = encoded_message[0] + up
 
     return low, up
 

@@ -27,11 +27,11 @@ def remove_piece(gameBoard, x, y):
         return False
 
 
-def move_piece(gameBoard, x, y, newx, newy):
-    if is_free(gameBoard, newx, newy) and not is_free(gameBoard, x, y): # kollar inte x,y innan den bxter plats
+def move_piece(gameBoard, x, y, new_x, new_y):
+    if is_free(gameBoard, new_x, new_y) and not is_free(gameBoard, x, y): #(x,y) has to be taken and (newx,newy) has to be free
         piece = gameBoard[(x,y)]
         remove_piece(gameBoard, x,y)
-        place_piece(gameBoard, newx, newy, piece)
+        place_piece(gameBoard, new_x, new_y, piece)
         return True
     else:
         return False
@@ -45,17 +45,17 @@ def get_piece(gameBoard, x, y):
 
 
 def nearest_piece(gameBoard, x, y):
-    newDis = 0
-    lowDis = 0
-    lowestCord = ()
+    new_dis = 0
+    low_dis = 0
+    lowest_cord = ()
     for key in gameBoard:
-        newDis = math.dist((x,y), key)
-        if lowDis > newDis:
-            lowDis = newDis
-            lowestCord = key
+        new_dis = math.dist((x,y), key)
+        if low_dis > new_dis:
+            low_dis = new_dis
+            lowest_cord = key
         else:
-          lowDis = newDis
-    return lowestCord
+          low_dis = new_dis
+    return lowest_cord
 
 
 def count(gameBoard, txpe, cord, piece):

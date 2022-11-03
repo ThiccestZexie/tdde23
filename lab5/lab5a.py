@@ -41,7 +41,7 @@ def unsharp_mask(N):
     lista_cord = [[-(1/(2*pi*s**2)*e**(-(x**2+(-y)**2)/(2*s**2)))
         for x in lista_x_y ]for y in lista_x_y]
 
-    lista_cord[math.floor(N/2)][math.floor(N/2)] = 1.5 # mitten blir = 1.5
+    lista_cord[math.floor(N/2)][math.floor(N/2)] = 1.5 # makes the middle 1.5
 
     return lista_cord
 

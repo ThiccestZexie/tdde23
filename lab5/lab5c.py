@@ -33,10 +33,9 @@ def pixel_constrait_test():
     
     try:
         condition1 = pixel_constraint(50, 150,50,150,50,150)
-        assert condition1(520) == TypeError
-        raise TypeError
+        condition1(520)
     except TypeError:
-        print("Given input is not a tuple")
+        return("Given input is not a tuple")
 
 
 def multiply_tuple(tpl, mult):
@@ -83,7 +82,6 @@ def rgblist_to_cvimg(lst, height, width):
 
 
 def generator_from_image(image_as_list):
-
     """Gives BGR value for a pixel after it reads the list of it given a index"""
 
     def generator(index): # remove try/except
@@ -133,7 +131,7 @@ def combine_images(mask,  mask_function, image_generator1, image_generator2):
                     list_colors.append(img2[A])
                 else:
                     list_colors.append(add_tuples(multiply_tuple(img1[A], mask_function(mask[A])), multiply_tuple(img2[A], (1-mask_function(mask[A])))))
-                return list_colors
+            return list_colors
         else:
             raise TypeError
     except IndexError:
@@ -155,24 +153,24 @@ def combine_images_test():
     conditiona = gradient_condition([(128,128,128), (0,0,0)])
     gen1 = generator_from_image([(255,172,255), (0,0,0)])
     gen2 = generator_from_image([(0,80, 53), (0,0,0)])
-    print(combine_images(mask, conditiona, gen1, gen2)) == [(255,172,255), (0,0,0)]
+    assert combine_images(mask, conditiona, gen1, gen2) == [(255,172,255), (0,0,0)]
 
-    #Testing caes where input list or generators arent correct.
+    #Testing cases where input list or generators arent correct.
     try:
         input_list = 'random string'
-        assert combine_images(input_list, condition, gen1, gen2) == [(255,172,255), (0,0,0)]
-    except AssertionError:
-        print("TypeError, input list isnt a list")
+        combine_images(input_list, condition, gen1, gen2) 
+    except TypeError:
+        assert True, "Input_list isnt a list"
     try:
         gen1 = lambda x: x
-        assert combine_images(input_list, condition, gen1, gen2) == [(255,172,255), (0,0,0)]
-    except AssertionError:
-        print("TypeError as gen")
+        combine_images(input_list, condition, gen1, gen2)
+    except TypeError:
+        assert True, "generator1 doesnt return tuples "
     try:
         gen2 = lambda x: x
-        assert combine_images(input_list, condition, gen1, gen2) == [(255,172,255), (0,0,0)]
-    except AssertionError:
-        print("should raise TypeError when generator2 doesn't return tuples")
+        combine_images(input_list, condition, gen1, gen2)
+    except TypeError:
+        assert True, "generator2 doesnt return tuples"
 
 
 def greyscale_list_to_cvimg(lst, height, width):

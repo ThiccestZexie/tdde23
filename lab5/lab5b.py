@@ -7,7 +7,6 @@ import numpy
 
 
 def pixel_constraint(hlow, hhigh, slow, shigh, vlow, vhigh):
-
     """Checks if a pixels HSV values matches with a set conditions and returns 1 or 0 depending if it does or not"""
 
     def pixel_condition(hsv):
@@ -37,7 +36,6 @@ def add_tuples(tpl1, tpl2):
 
 
 def cvimg_to_list(filename):
-
     """Returns a list of tuples of a images RGB values"""
 
     list_of_colors = []
@@ -79,13 +77,13 @@ def combine_images(mask, mask_function, image_generator1, image_generator2):
     list_colors = []
     img1 = [image_generator1(i) for i in range(len(mask))]
     img2 = [image_generator2(i) for i in range(len(mask))]
-    for A in range(len(mask)):
-        if mask_function(mask[A]) == 1: # sends a tuple
-            list_colors.append(img1[A])
-        elif mask_function(mask[A]) == 0:
-            list_colors.append(img2[A])
+    for index in range(len(mask)):
+        if mask_function(mask[index]) == 1: # sends a tuple
+            list_colors.append(img1[index])
+        elif mask_function(mask[index]) == 0:
+            list_colors.append(img2[index])
         else:
-            list_colors.append(add_tuples(multiply_tuple(img1[A], condition(mask[A])), multiply_tuple(img2[A], (1-condition(mask[A])))))
+            list_colors.append(add_tuples(multiply_tuple(img1[index], mask_function(mask[index])), multiply_tuple(img2[index], (1-mask_function(mask[index])))))
     return list_colors
 
 
@@ -108,6 +106,6 @@ def gradient_condition(mask):
             if r == g == b:
                 return r/255
         else:
-            return r/255
+            return index/255
         
     return condition

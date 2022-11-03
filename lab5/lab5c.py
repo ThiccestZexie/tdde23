@@ -1,8 +1,5 @@
-import glob
-import random
-import re
-from typing import Type
-import math
+import numpy
+import cv2
 
 
 def pixel_constraint(hlow, hhigh, slow, shigh, vlow, vhigh):
@@ -41,13 +38,6 @@ def pixel_constrait_test():
     except TypeError:
         print("Given input is not a tuple")
 
-    try: 
-        condition1 = pixel_constraint(50, 150,50,150,50,150)
-        assert condition1(520) == TypeError
-        raise TypeError
-    except TypeError:
-        print("Given input is not a string")
-
 
 def multiply_tuple(tpl, mult):
     """Return a tuple where all elements are scaled by factor 'mult'.
@@ -64,7 +54,6 @@ def add_tuples(tpl1, tpl2):
     (a,b,c) + (d,e,f) = (a+d, b+e, c+f)
     """
     return tuple(map(lambda t1, t2: t1+t2, tpl1, tpl2))
-
 
 
 def cvimg_to_list(filename):
@@ -97,16 +86,15 @@ def generator_from_image(image_as_list):
 
     """Gives BGR value for a pixel after it reads the list of it given a index"""
 
-    def generator(index):
-        try:
+    def generator(index): # remove try/except
+        if isinstance(index, int):
             if index > len(image_as_list): 
-                raise IndexError
-            elif isinstance(index, int):
-                return image_as_list[index]
+                return IndexError
             else:
-                raise TypeError
-        except IndexError:
-            return IndexError
+                return image_as_list[index]
+        else:
+            return TypeError
+
         
     return generator
 
@@ -116,16 +104,21 @@ def generator_from_image_test():
     tuple_list = [(255,0,255),(0,35,1),(0,0,0)]
 
     generator = generator_from_image(tuple_list)
-    
-    for i in range(len(tuple_list)):
+
+    for i in range(len(tuple_list)): #Normal test
         assert generator(i) == tuple_list[i]
     
-    assert generator(231) == IndexError
+    #Error testing
+    assert generator(len(tuple_list)+ 1) == IndexError
+
+    assert generator("string") == TypeError # Test med string
 
 
 def combine_images(mask,  mask_function, image_generator1, image_generator2):  
-
-    """Combine 2 based on a mask with the help of a mask function that decides if img 1 or img 2 should be used or a blend Returns a list of the BGR values for each pixel for the new image
+    """
+    Combine 2 based on a mask with the help of a mask function that decides if img 1 or img 2 should be used or a blend 
+    
+    Returns a list of the BGR values for each pixel for the new image
     """
 
     list_colors = []
@@ -167,26 +160,19 @@ def combine_images_test():
     #Testing caes where input list or generators arent correct.
     try:
         input_list = 'random string'
-        combine_images(input_list, condition, gen1, gen2)
-        raise TypeError
-    except TypeError:
+        assert combine_images(input_list, condition, gen1, gen2) == [(255,172,255), (0,0,0)]
+    except AssertionError:
         print("TypeError, input list isnt a list")
     try:
         gen1 = lambda x: x
-        combine_images(input_list, condition, gen1, gen2)
-        raise TypeError        
-    except TypeError:
+        assert combine_images(input_list, condition, gen1, gen2) == [(255,172,255), (0,0,0)]
+    except AssertionError:
         print("TypeError as gen")
     try:
         gen2 = lambda x: x
-        combine_images(input_list, condition, gen1, gen2)
-        raise TypeError 
-    except TypeError:
+        assert combine_images(input_list, condition, gen1, gen2) == [(255,172,255), (0,0,0)]
+    except AssertionError:
         print("should raise TypeError when generator2 doesn't return tuples")
-
-   
-   
-
 
 
 def greyscale_list_to_cvimg(lst, height, width):
@@ -211,7 +197,7 @@ def gradient_condition(mask):
                 if r == g == b:
                     return r/255
             else:
-                return r/255
+                return index/255
         except IndexError:
             return "Given index is begger than len(mask)"
         except TypeError:

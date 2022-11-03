@@ -75,14 +75,16 @@ def combine_images(mask, mask_function, image_generator1, image_generator2):
     list_colors = []
     img1 = [image_generator1(i) for i in range(len(mask))]
     img2 = [image_generator2(i) for i in range(len(mask))]
-    for A in range(len(mask)):
-        if mask_function(mask[A]) == 1: # sends a tuple
-            list_colors.append(img1[A])
-        elif mask_function(mask[A]) == 0:
-            list_colors.append(img2[A])
+    for index in range(len(mask)):
+        if mask_function(mask[index]) == 1: # sends a tuple
+            list_colors.append(img1[index])
+        elif mask_function(mask[index]) == 0:
+            list_colors.append(img2[index])
         else:
-            list_colors.append(add_tuples(multiply_tuple(img1[A], mask_function(mask[A])), multiply_tuple(img2[A], (1-mask_function(mask[A])))))
+            list_colors.append(add_tuples(multiply_tuple(img1[index], mask_function(mask[index])), multiply_tuple(img2[index], (1-mask_function(mask[index])))))
     return list_colors
+
+
 
 
 def greyscale_list_to_cvimg(lst, height, width):

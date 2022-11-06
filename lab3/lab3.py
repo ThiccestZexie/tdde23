@@ -47,14 +47,14 @@ def get_piece(gameBoard, x, y):
 def nearest_piece(gameBoard, x, y):
     new_dis = 0
     low_dis = 0
-    lowest_cord = ()
+    lowest_cord = (0,0)
     for key in gameBoard:
         new_dis = math.dist((x,y), key)
-        if low_dis > new_dis:
+        if low_dis >= new_dis:
             low_dis = new_dis
             lowest_cord = key
-        else:
-          low_dis = new_dis
+        elif math.dist((x,y), lowest_cord) > new_dis:
+            low_dis = new_dis
     return lowest_cord
 
 

@@ -45,17 +45,19 @@ def get_piece(gameBoard, x, y):
 
 
 def nearest_piece(gameBoard, x, y):
-    new_dis = 0
-    low_dis = 0
-    lowest_cord = (0,0)
+    if gameBoard == {}:
+        return False
+    min_dist = float("inf")
+    lowest_x, lowest_y = None, None
+
     for key in gameBoard:
-        new_dis = math.dist((x,y), key)
-        if low_dis >= new_dis:
-            low_dis = new_dis
-            lowest_cord = key
-        elif math.dist((x,y), lowest_cord) > new_dis:
-            low_dis = new_dis
-    return lowest_cord
+        new_dis = math.dist((x,y),key)
+        if new_dis < min_dist:
+            min_dist = new_dis
+            lowest_x,lowest_y = key
+        elif math.dist((x,y), (lowest_x,lowest_y)) > new_dis:
+            min_dist = new_dis
+    return (lowest_x,lowest_y)
 
 
 def count(gameBoard, txpe, cord, piece):
@@ -66,9 +68,54 @@ def count(gameBoard, txpe, cord, piece):
                 if keys[1] == cord:
                     sum += 1
     if txpe == "column":
-       for keys in gameBoard: 
+        for keys in gameBoard: 
             if gameBoard[keys] == piece:
                 if keys[0] == cord:
                     sum += 1
     return sum
+
+
+def test_1():
+    board = new_board()
+    place_piece(board, 500, 110, "spelare2")
+    place_piece(board, 500, 103, "spelare2")
+    place_piece(board, 400, 105, "spelare2")
+    place_piece(board, 500, 102, "spelare2")
+
+    # Hitta figuren närmast position (0, 0).
+    assert nearest_piece(board, 500, 105) == (500, 103)
+
+
+def test_2():
+    board = new_board()
+
+    place_piece(board, 500, 500, "spelare2")
+    place_piece(board, 10, 10, "spelare2")
+    assert nearest_piece(board, 0, 0) == (10,10)
+
+
+def test_bas():
+    board = new_board()
+    assert (is_free(board, 500, 100)) == True 
+    assert (place_piece(board, 500, 100, "spelare1"))  == True 
+    assert (place_piece(board, 1, 100, "spelare2")) == True
+    assert (place_piece(board, 500, 100, "spelare2")) == False 
+    assert (place_piece(board, 500, 200, "spelare2")) == True
+    assert (is_free(board, 500, 100)) == False
+    assert (get_piece(board, 500, 100)) == 'spelare1'
+    assert (get_piece(board, 666,666)) == False
+    assert (remove_piece(board, 500, 100))        == True   
+    assert (remove_piece(board, 1, 1) )            == False     
+    assert (is_free(board, 500, 100)) == True
+    assert (move_piece(board,  500, 200, 500, 100))  == True  
+    assert (count(board, "column", 500, "spelare2") )  == 1 
+    assert (count(board, "row", 100, "spelare2")) == 2
+    assert (nearest_piece(board, 500, 105))  == (500,100)  
+
+def test():
+    test_1()
+    test_2()
+    test_bas()
+
+    print("passed all tests")
 
